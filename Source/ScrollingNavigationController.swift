@@ -294,17 +294,30 @@ public class ScrollingNavigationController: UINavigationController, UIGestureRec
         // Move the navigation bar
         frame.origin = CGPoint(x: frame.origin.x, y: frame.origin.y - delta)
         navigationBar.frame = frame
+        
+        // Move the tab bar
+        let tabBarHeight = updateSizingForTabBar(delta)
 
         // Resize the view if the navigation bar is not translucent
         if !navigationBar.translucent {
             let navBarY = navigationBar.frame.origin.y + navigationBar.frame.size.height
             frame = topViewController.view.frame
             frame.origin = CGPoint(x: frame.origin.x, y: navBarY)
-            frame.size = CGSize(width: frame.size.width, height: view.frame.size.height - (navBarY) - tabBarOffset)
+            frame.size = CGSize(width: frame.size.width, height: view.frame.size.height - (navBarY) - tabBarHeight)
             topViewController.view.frame = frame
         } else {
             adjustContentInsets()
         }
+    }
+
+    private func updateSizingForTabBar(delta: CGFloat) -> CGFloat {
+        guard let tabBar = tabBarController?.tabBar else { return tabBarOffset }
+        var frame = tabBar.frame
+        
+        // Move the tab bar
+        frame.origin = CGPoint(x: frame.origin.x, y: frame.origin.y + delta)
+        tabBarController?.tabBar.frame = frame
+        return view.frame.size.height - frame.origin.y
     }
 
     private func adjustContentInsets() {
